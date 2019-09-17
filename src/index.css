@@ -1,0 +1,43 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.table-caro button{
+  width: 30px;
+  height: 30px;
+  text-decoration: none;
+  margin: 1px;
+  border: none;
+  background-color: #6f9e81;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px;
+}
+.wrapper{
+  padding-top:10px;
+  margin: auto;
+  width: max-content;
+}
+.row{
+  display: flex;
+}
+.info-turn{
+  padding:20px;
+  font-size: 20px;
+}
+.c-red{
+  color:red;
+}
+.c-blue{
+  color:blue;
+}
