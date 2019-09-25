@@ -7,7 +7,9 @@ class CaroComponent extends React.Component {
             column: 20,
             arrayPlay: [],
             isXturn: true,
-            isWin: false
+            isWin: false,
+            arrayChoose: [],
+            isDecrease: false
         };
 
         /** 
@@ -111,19 +113,63 @@ class CaroComponent extends React.Component {
 
     render() {
         return (
-            <div className="wrapper">
-                <div className="info-turn">Quân đánh tiếp theo : {this.state.isXturn ? (<span className="c-red">X</span>) : <span className="c-blue">O</span>}</div>
-                <div className="table-caro">
-                    {this.createTableCaro(this.state.row, this.state.column)}
+            <div className="container">
+                <div className="wrapper">
+                    <div className="info-turn">Quân đánh tiếp theo : {this.state.isXturn ? (<span className="c-red">X</span>) : <span className="c-blue">O</span>}</div>
+                    <div className="table-caro">
+                        {this.createTableCaro(this.state.row, this.state.column)}
+                    </div>
+                    <div className="">
+                        <button className="btn-reset" onClick={()=>{
+                            this.reset();
+                        }}>Chơi lại</button>
+                    </div>
                 </div>
-                <div className="">
-                    <button className="btn-reset" onClick={()=>{
-                        this.reset();
-                    }}>Chơi lại</button>
+                <div className="ListMove" align="right">
+                    <div>Danh sách nước đi</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <td>Nước đi</td>
+                                <td>Người đánh</td>
+                                <td>Vị trí</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                this.state.arrayChoose.map((ele,index)=>{
+                                    let hightlight = 0;
+                                    if(!this.state.isDecrease){
+                                        hightlight = this.state.arrayChoose.length - 1;
+                                    }
+                                    return(
+                                        <tr key={index} className={hightlight === index ? "active" : ""}>
+                                            <td>{ele.turn}</td>
+                                            <td>{ele.person}</td>
+                                            <td>{ele.position}</td>
+                                        </tr>
+                                )})
+                            }
+                        </tbody>
+                    </table>
+                    <div align="center">
+                        <button onClick={()=>{this.handleSort()}}>Sắp xếp</button>
+                    </div>
                 </div>
             </div>
         );
 
+    }
+
+    handleSort(){
+        //Reverse array
+        let arrayTemp = this.state.arrayChoose;
+        arrayTemp = arrayTemp.reverse();
+        let sort = !this.state.isDecrease;
+        this.setState({
+            arrayChoose: arrayTemp,
+            isDecrease: sort
+        });
     }
 
     reset(){
@@ -137,7 +183,8 @@ class CaroComponent extends React.Component {
         this.setState({
             arrayPlay: arrClone,
             isXturn: true,
-            isWin: false
+            isWin: false,
+            arrayChoose: []
         });
         // Clear hightLight
         var allButton = document.querySelectorAll("button:not(.btn-reset)");
@@ -148,14 +195,31 @@ class CaroComponent extends React.Component {
     
     createTableCaro(numberOfRows, numberOfColumns) {
         let table = [];
-        for (let i = 0; i < numberOfRows; i++) {
+        for (let i = 0; i <= numberOfRows; i++) {
             let row = [];
-            for (let j = 0; j < numberOfColumns; j++) {
-                row.push(
-                <button id={`${i}-${j}`} onClick={() => this.handleClick(i, j)} key={j}>
-                    {this.state.arrayPlay[i][j] === 1? (<span className="c-red">X</span>):""}
-                    {this.state.arrayPlay[i][j] === -1? (<span className="c-blue">O</span>):""}
-                </button>);
+            for (let j = 0; j <= numberOfColumns; j++) {
+                if(i === 0 || j === 0){
+                    if(i === 0 && j === 0){
+                        row.push(<span key = {j}></span>);
+                    }
+                    else{
+                        //A in asc ii = 65
+                        if(i === 0){
+                            let charTemp = String.fromCharCode(65  + j - 1);
+                            row.push(<span key = {j}>{charTemp}</span>);
+                        }
+                        else{
+                            row.push(<span key = {j}>{i - 1}</span>);
+                        }
+                    }
+                }
+                else{
+                    row.push(
+                    <button id={`${i - 1}-${j - 1}`} onClick={() => this.handleClick(i - 1, j - 1)} key={j}>
+                        {this.state.arrayPlay[i - 1][j - 1] === 1? (<span className="c-red">X</span>):""}
+                        {this.state.arrayPlay[i - 1][j - 1] === -1? (<span className="c-blue">O</span>):""}
+                    </button>);
+                }
             }
             table.push(<div key={i} className="row">{row}</div>);
         }
@@ -168,16 +232,23 @@ class CaroComponent extends React.Component {
             return;
         }
         let arrClone = this.state.arrayPlay;
-
+        let chooseClone = this.state.arrayChoose;
+        let move = {};
+        move.turn = Math.floor((chooseClone.length /2) + 1);
+        move.position = String.fromCharCode(65 +  column) + row;
         if (this.state.isXturn) {
             arrClone[row][column] = 1;
+            move.person = "X";
         }
         else {
             arrClone[row][column] = -1;
+            move.person = "O";
         }
+        chooseClone.push(move);
         this.setState({
             arrayPlay: arrClone,
-            isXturn: !this.state.isXturn
+            isXturn: !this.state.isXturn,
+            arrayChoose: chooseClone
         });
         this.handleWin();
     }

@@ -26,7 +26,6 @@ code {
 .wrapper{
   padding-top:10px;
   margin: auto;
-  width: max-content;
 }
 .row{
   display: flex;
@@ -40,4 +39,54 @@ code {
 }
 .c-blue{
   color:blue;
+}
+.container{
+  display: flex;
+  justify-content: space-around;
+}
+.ListMove{
+  padding:30px;
+  font-size: 20px;
+  padding-right: 65px;
+}
+.row > span{
+  display:inline-block;
+  width:30px;
+  margin:1px;
+  height: 30px;
+}
+table{
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 15px;
+}
+table td{
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+table thead tr:nth-child(even){
+  background-color: #f2f2f2;
+}
+table tr:hover {background-color: #ddd;}
+table thead td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #4CAF50;
+  color: white;
+}
+table tbody {
+  font-size: 13px;
+}
+thead > tr > td {
+  padding-left: 25px;
+  padding-right: 25px;
+}
+.ListMove > div {
+  text-align: center;
+  padding-bottom:10px;
+}
+tbody > tr.active > td{
+  background-color: #ddd;
 }
