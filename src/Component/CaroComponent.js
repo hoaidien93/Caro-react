@@ -153,7 +153,7 @@ class CaroComponent extends React.Component {
                         </tbody>
                     </table>
                     <div align="center">
-                        <button onClick={()=>{this.handleSort()}}>Sắp xếp</button>
+                        <button className="btn-sort" onClick={()=>{this.handleSort()}}>Sắp xếp</button>
                     </div>
                 </div>
             </div>
@@ -187,7 +187,7 @@ class CaroComponent extends React.Component {
             arrayChoose: []
         });
         // Clear hightLight
-        var allButton = document.querySelectorAll("button:not(.btn-reset)");
+        var allButton = document.querySelectorAll("button:not(.btn-reset):not(.btn-sort)");
         allButton.forEach((button)=>{
             button.style.backgroundColor = "#6f9e81";
         })
@@ -244,7 +244,10 @@ class CaroComponent extends React.Component {
             arrClone[row][column] = -1;
             move.person = "O";
         }
-        chooseClone.push(move);
+        if(this.state.isDecrease){
+            chooseClone.unshift(move);
+        }
+        else chooseClone.push(move);
         this.setState({
             arrayPlay: arrClone,
             isXturn: !this.state.isXturn,
