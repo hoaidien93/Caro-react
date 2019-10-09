@@ -1,4 +1,6 @@
 import React from 'react';
+import {connect} from 'react-redux';
+
 class CaroComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -35,13 +37,18 @@ class CaroComponent extends React.Component {
                 if (j < this.state.column - 5 && 
                     arrayCalc[i][j] + arrayCalc[i][j + 1] + arrayCalc[i][j + 2] + arrayCalc[i][j + 3] + arrayCalc[i][j + 4] === 5) {
                     this.hightlight("row",i,j);
-                    alert("X Win");
+                    this.props.dispatch({
+                        type: "XWin"
+                    });
                     this.setState({isWin: true});
                 }
                 if (j < this.state.column - 5 && 
                     arrayCalc[i][j] + arrayCalc[i][j + 1] + arrayCalc[i][j + 2] + arrayCalc[i][j + 3] + arrayCalc[i][j + 4] === -5) {
                     this.hightlight("row",i,j);
                     alert("O Win");
+                    this.props.dispatch({
+                        type: "OWin"
+                    });
                     this.setState({isWin: true});
                 }
                 // Column
@@ -49,12 +56,18 @@ class CaroComponent extends React.Component {
                     arrayCalc[i][j] + arrayCalc[i + 1][j] + arrayCalc[i + 2][j] + arrayCalc[i + 3][j] + arrayCalc[i + 4][j] === 5) {
                     this.hightlight("column",i,j);
                     alert("X Win");
+                    this.props.dispatch({
+                        type: "XWin"
+                    });
                     this.setState({isWin: true});
                 }
                 if (i < this.state.row - 5 &&  
                     arrayCalc[i][j] + arrayCalc[i + 1][j] + arrayCalc[i + 2][j] + arrayCalc[i + 3][j] + arrayCalc[i + 4][j] === -5) {
                     this.hightlight("column",i,j);
                     alert("O Win");
+                    this.props.dispatch({
+                        type: "OWin"
+                    });
                     this.setState({isWin: true});
                 }
                 // Cross line
@@ -63,12 +76,18 @@ class CaroComponent extends React.Component {
                     arrayCalc[i][j] + arrayCalc[i + 1][j + 1] + arrayCalc[i + 2][j + 2] + arrayCalc[i + 3][j + 3] + arrayCalc[i + 4][j + 4] === 5) {
                     this.hightlight("cross-right",i,j);
                     alert("X Win");
+                    this.props.dispatch({
+                        type: "XWin"
+                    });
                     this.setState({isWin: true});
                 }
                 if (i < this.state.row - 5 &&  j < this.state.column - 5 && 
                     arrayCalc[i][j] + arrayCalc[i + 1][j + 1] + arrayCalc[i + 2][j + 2] + arrayCalc[i + 3][j + 3] + arrayCalc[i + 4][j + 4] === -5) {
                     this.hightlight("cross-right",i,j);
                     alert("O Win");
+                    this.props.dispatch({
+                        type: "OWin"
+                    });
                     this.setState({isWin: true});
                 }
                 // Left
@@ -76,12 +95,18 @@ class CaroComponent extends React.Component {
                     arrayCalc[i][j] + arrayCalc[i - 1][j + 1] + arrayCalc[i - 2][j + 2] + arrayCalc[i - 3][j + 3] + arrayCalc[i - 4][j + 4] === 5) {
                     this.hightlight("cross-left",i,j);
                     alert("X Win");
+                    this.props.dispatch({
+                        type: "XWin"
+                    });
                     this.setState({isWin: true});
                 }
                 if (i >= 4 &&  j < this.state.column - 5 && 
                     arrayCalc[i][j] + arrayCalc[i - 1][j + 1] + arrayCalc[i - 2][j + 2] + arrayCalc[i - 3][j + 3] + arrayCalc[i - 4][j + 4] === -5) {
                     this.hightlight("cross-left",i,j);
                     alert("O Win");
+                    this.props.dispatch({
+                        type: "OWin"
+                    });
                     this.setState({isWin: true});
                 }
             }
@@ -258,4 +283,4 @@ class CaroComponent extends React.Component {
 
 }
 
-export default CaroComponent;
+export default connect()(CaroComponent);
