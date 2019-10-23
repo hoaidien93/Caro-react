@@ -157,7 +157,7 @@ class CaroComponent extends React.Component {
                 <div>
                     <div align="left" className="p2 f-left"><span>Hello {username}</span></div>
                     <div align="right" className="p2 f-right">
-                        <Button variant="danger" type="button" onClick={(e)=>{this.logoutClick(e)}}>Logut</Button>
+                        <Button variant="danger" type="button" onClick={(e)=>{this.logoutClick(e)}}>Logout</Button>
                     </div>
                 </div>
             );
