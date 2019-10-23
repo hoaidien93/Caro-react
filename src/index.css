@@ -112,3 +112,10 @@ tbody > tr.active > td{
   padding:20px;
   margin-top:20px;
 }
+.menu-user{
+  background-color: aliceblue;
+  border-bottom: 1px solid #92c6f4;
+}
+.f-left{
+  float:left;
+}

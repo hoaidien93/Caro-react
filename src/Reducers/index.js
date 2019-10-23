@@ -1,6 +1,6 @@
 // src/js/reducers/index.js
 const initialState = {
-    
+    isLogged: false
 };
 function rootReducer(state = initialState, action) {
     if(action.type === "XWin"){
@@ -13,5 +13,16 @@ function rootReducer(state = initialState, action) {
             person : "Y"
         }
     }
+    if(action.type === "Logged"){
+        return {
+            isLogged : true
+        }
+    }
+    if(action.type === "Logout"){
+        return {
+            isLogged : false
+        }
+    }
+    return state;
 };
 export default rootReducer;
