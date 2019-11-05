@@ -19,22 +19,26 @@ class LoginComponent extends React.Component {
         // Call API
         $.ajax({
             method: 'POST',
-            url: "https://hoaidien-jwt.herokuapp.com/user/login",
+            url: "http://localhost:3001/user/login",
             data: {
                 "username": this.state.username,
                 "password": this.state.password
             },
             success: function(res){
+                console.log(res);
                 alert(res.status);
                 me.props.dispatch({
                     type: "Logged"
                 });
                 localStorage.setItem("username", me.state.username);
+                localStorage.setItem("token", res.token);
+                localStorage.setItem("userInfo",JSON.stringify(res.userInfo));
+
+
                 me.props.history.push('/');
             },
             error: function(err){
-                alert(err.responseJSON.Info);
-                window.location.reload();
+                console.log(err);
                 return;
             }
         });

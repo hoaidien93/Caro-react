@@ -5,11 +5,13 @@ const initialState = {
 function rootReducer(state = initialState, action) {
     if(action.type === "XWin"){
         return {
+            isLogged : true,
             person: "X"
         }
     }
     if(action.type === "YWin"){
         return {
+            isLogged : true,
             person : "Y"
         }
     }

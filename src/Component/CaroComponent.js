@@ -2,7 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { Button } from 'react-bootstrap'
-
+import io from 'socket.io-client';
+import $ from 'jquery';
 class CaroComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -13,9 +14,16 @@ class CaroComponent extends React.Component {
             isXturn: true,
             isWin: false,
             arrayChoose: [],
-            isDecrease: false
+            isDecrease: false,
+            type: "",
+            isShowTable: false,
+            objMatch: undefined,
+            symbolPlay: "X",
+            message: "",
+            endPoint: "http://localhost:3001"
         };
-
+        this.pattern = "";
+        this.patternId = "";
         /** 
          * Define
          * X : 1
@@ -29,6 +37,7 @@ class CaroComponent extends React.Component {
             }
         }
 
+        this.socket = {};
     }
 
     handleWin() {
@@ -43,6 +52,7 @@ class CaroComponent extends React.Component {
                         type: "XWin"
                     });
                     this.setState({ isWin: true });
+                    return true;
                 }
                 if (j < this.state.column - 5 &&
                     arrayCalc[i][j] + arrayCalc[i][j + 1] + arrayCalc[i][j + 2] + arrayCalc[i][j + 3] + arrayCalc[i][j + 4] === -5) {
@@ -52,6 +62,7 @@ class CaroComponent extends React.Component {
                         type: "OWin"
                     });
                     this.setState({ isWin: true });
+                    return true;
                 }
                 // Column
                 if (i < this.state.row - 5 &&
@@ -62,6 +73,7 @@ class CaroComponent extends React.Component {
                         type: "XWin"
                     });
                     this.setState({ isWin: true });
+                    return true;
                 }
                 if (i < this.state.row - 5 &&
                     arrayCalc[i][j] + arrayCalc[i + 1][j] + arrayCalc[i + 2][j] + arrayCalc[i + 3][j] + arrayCalc[i + 4][j] === -5) {
@@ -71,6 +83,7 @@ class CaroComponent extends React.Component {
                         type: "OWin"
                     });
                     this.setState({ isWin: true });
+                    return true;
                 }
                 // Cross line
                 // Right
@@ -82,6 +95,7 @@ class CaroComponent extends React.Component {
                         type: "XWin"
                     });
                     this.setState({ isWin: true });
+                    return true;
                 }
                 if (i < this.state.row - 5 && j < this.state.column - 5 &&
                     arrayCalc[i][j] + arrayCalc[i + 1][j + 1] + arrayCalc[i + 2][j + 2] + arrayCalc[i + 3][j + 3] + arrayCalc[i + 4][j + 4] === -5) {
@@ -91,6 +105,7 @@ class CaroComponent extends React.Component {
                         type: "OWin"
                     });
                     this.setState({ isWin: true });
+                    return true;
                 }
                 // Left
                 if (i >= 4 && j < this.state.column - 5 &&
@@ -101,6 +116,7 @@ class CaroComponent extends React.Component {
                         type: "XWin"
                     });
                     this.setState({ isWin: true });
+                    return true;
                 }
                 if (i >= 4 && j < this.state.column - 5 &&
                     arrayCalc[i][j] + arrayCalc[i - 1][j + 1] + arrayCalc[i - 2][j + 2] + arrayCalc[i - 3][j + 3] + arrayCalc[i - 4][j + 4] === -5) {
@@ -110,9 +126,11 @@ class CaroComponent extends React.Component {
                         type: "OWin"
                     });
                     this.setState({ isWin: true });
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     hightlight(type, iStart, jStart) {
@@ -138,7 +156,7 @@ class CaroComponent extends React.Component {
         });
     }
 
-    logoutClick(e){
+    logoutClick(e) {
         this.props.dispatch({
             type: "Logout"
         });
@@ -147,7 +165,7 @@ class CaroComponent extends React.Component {
     }
 
     renderRedirect() {
-        if (!this.props.isLogged) {
+        if (!this.props.isLogged && !localStorage.getItem("logged")) {
             return (
                 <Redirect to='/login' />
             );
@@ -157,24 +175,82 @@ class CaroComponent extends React.Component {
                 <div>
                     <div align="left" className="p2 f-left"><span>Hello {username}</span></div>
                     <div align="right" className="p2 f-right">
-                        <Button variant="danger" type="button" onClick={(e)=>{this.logoutClick(e)}}>Logout</Button>
+                        <Button variant="danger" type="button" onClick={(e) => { this.logoutClick(e) }}>Logout</Button>
                     </div>
                 </div>
             );
         }
     }
+
+    changeType(e) {
+        var me = this;
+        let type = e.target.getAttribute("id");
+        this.setState({
+            "type": type,
+            "isShowTable": type === "machine"
+        });
+
+        if (type === "people") {
+            let socket = io.connect(me.state.endPoint);
+            socket.on('connect', () => {
+                console.log(socket.id);
+                socket.emit('register', { socketId: socket.id, username: localStorage.getItem("username"), status: "waiting" });
+            });
+
+            socket.on("Founded", (data) => {
+                me.startMatch(data);
+            })
+
+            socket.on('newMessage',(data)=>{
+                $(".chatcontent").append("<p class='message-chat'><span class='c-blue'>"+ me.pattern+"</span>: " + data.message + "</p>");
+                $(".chatcontent").scrollTop(9999);
+        
+            });
+        }
+
+    }
+
+    startMatch(data) {
+        var me = this;
+        console.log(this.state.objMatch);
+        let symbol = "O";
+        if (localStorage.getItem("username") === data.player1_username){
+            symbol = "X";
+            me.pattern = data.player2_username;
+            me.patternId = data.player2_id;
+        }
+        else{
+            me.pattern = data.player1_username;
+            me.patternId = data.player1_id;
+        }
+        me.setState({
+            objMatch: data,
+            isShowTable: true,
+            symbolPlay: symbol
+        });
+
+    }
+
     render() {
         return (
             <div>
                 <div className="p-2 menu-user">{this.renderRedirect()}</div>
-                <div className="container">
+                <div className={this.state.type ? "hidden" : "choose"}>
+                    <button className="btn btn-primary m-2" id="machine" onClick={(e) => { this.changeType(e) }}>Chơi với máy</button>
+                    <button className="btn btn-primary m-2" id="people" onClick={(e) => { this.changeType(e) }}>Chơi với người</button>
+                </div>
+                <div className={this.state.type && !this.state.isShowTable ? "" : "hidden"}>
+                    <div className="loader"></div>
+                    <div>Finding Player ...</div>
+                </div>
+                <div className={this.state.isShowTable ? "container" : "container hidden"}>
                     <div className="wrapper">
                         <div className="info-turn">Quân đánh tiếp theo : {this.state.isXturn ? (<span className="c-red">X</span>) : <span className="c-blue">O</span>}</div>
                         <div className="table-caro">
                             {this.createTableCaro(this.state.row, this.state.column)}
                         </div>
                         <div className="">
-                            <button className="btn-reset" onClick={() => {
+                            <button className="btn btn-info btn-reset" onClick={() => {
                                 this.reset();
                             }}>Chơi lại</button>
                         </div>
@@ -208,7 +284,15 @@ class CaroComponent extends React.Component {
                             </tbody>
                         </table>
                         <div align="center">
-                            <button className="btn-sort" onClick={() => { this.handleSort() }}>Sắp xếp</button>
+                            <button className="btn btn-primary btn-sort mr-2" onClick={() => { this.handleSort() }}>Sắp xếp</button>
+                            <button className="btn btn-info btn-sort ml-2" onClick={() => { this.handleUndo() }}>Undo</button>
+                        </div>
+                    </div>
+                    <div className="chatbox">
+                        <div className="chatcontent"></div>
+                        <div className="chat-bottom">
+                            <input className="form-control" placeholder={"Chatting with " + this.pattern} type="text" name="message" onChange={(e)=>{this.handleChange(e)}}/>
+                            <button className="btn btn-primary ml-1" onClick={(e)=>{this.sendMessage()}}>Send</button>
                         </div>
                     </div>
                 </div>
@@ -283,8 +367,14 @@ class CaroComponent extends React.Component {
     }
 
     handleClick(row, column, e) {
+        // X first
+        if (this.state.type === "machine") this.handleClickPlayWithMachine(row, column, e);
+
+    }
+
+    handleClickPlayWithMachine(row, column, e) {
         // Get turn
-        if (this.state.arrayPlay[row][column] !== 0 || this.state.isWin) {
+        if (this.state.arrayPlay[row][column] !== 0 || this.state.isWin || !this.state.isXturn) {
             return;
         }
         let arrClone = this.state.arrayPlay;
@@ -292,26 +382,99 @@ class CaroComponent extends React.Component {
         let move = {};
         move.turn = Math.floor((chooseClone.length / 2) + 1);
         move.position = String.fromCharCode(65 + column) + row;
-        if (this.state.isXturn) {
-            arrClone[row][column] = 1;
-            move.person = "X";
-        }
-        else {
-            arrClone[row][column] = -1;
-            move.person = "O";
-        }
+        arrClone[row][column] = 1;
+        move.person = "X";
         if (this.state.isDecrease) {
             chooseClone.unshift(move);
         }
         else chooseClone.push(move);
         this.setState({
             arrayPlay: arrClone,
-            isXturn: !this.state.isXturn,
+            isXturn: false,
+            arrayChoose: chooseClone
+        });
+        if (this.handleWin()) return;
+        // Machine
+        let chooseObj = this.getMachinePlay(row, column, Math.random() > 0.5 ? "row" : "column");
+        move = {};
+        move.turn = Math.floor((chooseClone.length / 2) + 1);
+        move.position = String.fromCharCode(65 + chooseObj.column) + chooseObj.row;
+        arrClone[chooseObj.row][chooseObj.column] = -1;
+        move.person = "O";
+        if (this.state.isDecrease) {
+            chooseClone.unshift(move);
+        }
+        else chooseClone.push(move);
+        this.setState({
+            arrayPlay: arrClone,
+            isXturn: true,
             arrayChoose: chooseClone
         });
         this.handleWin();
+
     }
 
+    getMachinePlay(row, column, increase) {
+        let choose = {
+            row: row,
+            column: column
+        };
+        if (this.state.arrayPlay[row][column] === 0) return choose;
+        if (increase === "row") return this.getMachinePlay(row + 1, column, "column");
+        if (increase === "column") return this.getMachinePlay(row, column + 1, "row");
+    }
+
+    handleUndo() {
+        let isDecrease = this.state.isDecrease;
+        let arrayTemp = this.state.arrayChoose;
+
+        if (!isDecrease) {
+            //Reverse array
+            arrayTemp = arrayTemp.reverse();
+        }
+        if (arrayTemp.length >= 2) {
+            let pos1 = this.getPosition(arrayTemp[0].position);
+            let pos2 = this.getPosition(arrayTemp[1].position);
+            arrayTemp.splice(0, 2);
+            if (!isDecrease) {
+                //Reverse array
+                arrayTemp = arrayTemp.reverse();
+            }
+            let arrayPlayTemp = this.state.arrayPlay;
+            arrayPlayTemp[pos1.row][pos1.column] = 0;
+            arrayPlayTemp[pos2.row][pos2.column] = 0;
+            this.setState({
+                arrayPlay: arrayPlayTemp,
+                arrayChoose: arrayTemp
+            });
+        }
+
+    }
+
+    getPosition(position) {
+        let row = position;
+        row = row.substr(1, row.length);
+        let obj = {
+            row: parseInt(row),
+            column: position.charCodeAt(0) - "A".charCodeAt(0)
+        }
+        return obj;
+    }
+
+    handleChange(e){
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
+    sendMessage(){
+        let socket = io.connect(this.state.endPoint);
+
+        // Emit send message
+        socket.emit("sendMessage",{to: this.patternId, message: this.state.message});
+        $(".chatcontent").append("<p class='message-chat'><span class='c-red'>" + localStorage.getItem("username") + "</span>: " + this.state.message + "</p>");
+        $(".chatcontent").scrollTop(9999);
+    }
 }
 function mapStateToProps(state) {
     return {

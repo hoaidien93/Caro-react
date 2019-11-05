@@ -24,7 +24,7 @@ class RegisterComponent extends React.Component {
         // Call API
         $.ajax({
             method: 'POST',
-            url: "https://hoaidien-jwt.herokuapp.com/user/register",
+            url: "http://localhost:3001/user/register",
             data: {
                 "username": this.state.username,
                 "name": this.state.name,
