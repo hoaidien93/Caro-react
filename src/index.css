@@ -192,16 +192,24 @@ button.btn-change-avatar{
 	width: 300px;
 	height: 434px;
 }
+
+.chatbox.offchat{
+  height: 35px;
+  overflow: hidden;
+}
+
 .chatcontent{
   background-color: white;
   width: 100%;
   height: 365px;
   margin-bottom: 10px;
-  padding-top: 10px;
-  padding-left: 15px;
-  overflow-y: scroll;
   border: 1px solid #615858;
   border-radius: 5px;
+}
+.chat-message{
+  overflow-y: auto;
+  width:100%;
+  height: 330px;
 }
 .chat-bottom{
 	height: 35px;
@@ -213,6 +221,7 @@ input#message{
 	width: 250px;
 	height: 25px;
 }
+
 input#send_message{
 	width: 45px;
 	height: 24px;
@@ -229,7 +238,25 @@ input#send_message{
 }
 .c-blue{
   color: blue;
+  padding-left: 10px;
 }
 .c-red{
   color:red;
+  padding-left: 10px;
+}
+
+.chat-label{
+  width: 100%;
+  height: 35px;
+  background-color: #180c77;
+  color: white;
+  text-align: left;
+  padding-left: 10px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: sticky;
+  left: 0px;
+  top: 0px;
 }

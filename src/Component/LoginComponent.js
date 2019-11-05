@@ -19,7 +19,7 @@ class LoginComponent extends React.Component {
         // Call API
         $.ajax({
             method: 'POST',
-            url: "http://localhost:3001/user/login",
+            url: "https://hoaidien-jwt.herokuapp.com/user/login",
             data: {
                 "username": this.state.username,
                 "password": this.state.password

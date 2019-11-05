@@ -56,7 +56,7 @@ class InfoComponent extends React.Component {
                 <div className="container">
                     <div className="wrapper w-50 user-info">
                         <div className="avatar">
-                            <img src={"http://localhost:3001/images/"+ this.state.avatar}/>
+                            <img src={"https://hoaidien-jwt.herokuapp.com/images/"+ this.state.avatar}/>
                             <input type="file" name="fileUpload" onChange={(e)=>{this.handleChangeFile(e)}}/>
                             <button className="btn-change-avatar btn btn-info mt-2" onClick={(e)=>{this.uploadAvatar(e)}}>Change Avatar</button>
                         </div>
@@ -94,7 +94,7 @@ class InfoComponent extends React.Component {
             console.log(this.state);
             $.ajax({
                 method: 'POST',
-                url: "http://localhost:3001/update-info",
+                url: "https://hoaidien-jwt.herokuapp.com/update-info",
                 beforeSend: function(request){
                     request.setRequestHeader("Authorization","Bearer "+localStorage.getItem("token"));
                 },
@@ -138,7 +138,7 @@ class InfoComponent extends React.Component {
         var me = this;
         let formData = new FormData();
         formData.append("avatar",this.state.fileUpload);
-        axios.post('http://localhost:3001/update-image',formData,{
+        axios.post('https://hoaidien-jwt.herokuapp.com/update-image',formData,{
             headers: {
               Authorization: 'Bearer ' + localStorage.getItem("token")
             }}).then((response)=>{

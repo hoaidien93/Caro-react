@@ -20,7 +20,8 @@ class CaroComponent extends React.Component {
             objMatch: undefined,
             symbolPlay: "X",
             message: "",
-            endPoint: "http://localhost:3001"
+            endPoint: "https://hoaidien-jwt.herokuapp.com",
+            isShowChat: true
         };
         this.pattern = "";
         this.patternId = "";
@@ -193,7 +194,6 @@ class CaroComponent extends React.Component {
         if (type === "people") {
             let socket = io.connect(me.state.endPoint);
             socket.on('connect', () => {
-                console.log(socket.id);
                 socket.emit('register', { socketId: socket.id, username: localStorage.getItem("username"), status: "waiting" });
             });
 
@@ -201,25 +201,27 @@ class CaroComponent extends React.Component {
                 me.startMatch(data);
             })
 
-            socket.on('newMessage',(data)=>{
-                $(".chatcontent").append("<p class='message-chat'><span class='c-blue'>"+ me.pattern+"</span>: " + data.message + "</p>");
-                $(".chatcontent").scrollTop(9999);
-        
+            socket.on('newMessage', (data) => {
+                $(".chat-message").append("<p class='message-chat'><span class='c-blue'>" + me.pattern + "</span>: " + data.message + "</p>");
+                $(".chat-message").scrollTop(9999);
             });
+
+            socket.on('newClick', (data) => {
+                me.handleClickPlayWithPeople(data.position.row, data.position.column, true);
+            })
         }
 
     }
 
     startMatch(data) {
         var me = this;
-        console.log(this.state.objMatch);
         let symbol = "O";
-        if (localStorage.getItem("username") === data.player1_username){
+        if (localStorage.getItem("username") === data.player1_username) {
             symbol = "X";
             me.pattern = data.player2_username;
             me.patternId = data.player2_id;
         }
-        else{
+        else {
             me.pattern = data.player1_username;
             me.patternId = data.player1_id;
         }
@@ -288,11 +290,14 @@ class CaroComponent extends React.Component {
                             <button className="btn btn-info btn-sort ml-2" onClick={() => { this.handleUndo() }}>Undo</button>
                         </div>
                     </div>
-                    <div className="chatbox">
-                        <div className="chatcontent"></div>
+                    <div className={this.state.isShowChat ? "chatbox" : "chatbox offchat"}>
+                        <div className="chatcontent">
+                            <div className="chat-label" onClick={(e)=>{this.toggleChat()}}>Chatting</div>
+                            <div className="chat-message"></div>
+                        </div>
                         <div className="chat-bottom">
-                            <input className="form-control" placeholder={"Chatting with " + this.pattern} type="text" name="message" onChange={(e)=>{this.handleChange(e)}}/>
-                            <button className="btn btn-primary ml-1" onClick={(e)=>{this.sendMessage()}}>Send</button>
+                            <input className="form-control" placeholder={"Chatting with " + this.pattern} type="text" value={this.state.message} name="message" onChange={(e) => { this.handleChange(e) }} />
+                            <button className="btn btn-primary ml-1" onClick={(e) => { this.sendMessage() }}>Send</button>
                         </div>
                     </div>
                 </div>
@@ -301,6 +306,12 @@ class CaroComponent extends React.Component {
 
     }
 
+    toggleChat(){
+        let toggle = !this.state.isShowChat;
+        this.setState({
+            isShowChat: toggle
+        })
+    }
     handleSort() {
         //Reverse array
         let arrayTemp = this.state.arrayChoose;
@@ -368,11 +379,12 @@ class CaroComponent extends React.Component {
 
     handleClick(row, column, e) {
         // X first
-        if (this.state.type === "machine") this.handleClickPlayWithMachine(row, column, e);
+        if (this.state.type === "machine") this.handleClickPlayWithMachine(row, column);
+        if (this.state.type === "people") this.handleClickPlayWithPeople(row, column);
 
     }
 
-    handleClickPlayWithMachine(row, column, e) {
+    handleClickPlayWithMachine(row, column) {
         // Get turn
         if (this.state.arrayPlay[row][column] !== 0 || this.state.isWin || !this.state.isXturn) {
             return;
@@ -412,6 +424,53 @@ class CaroComponent extends React.Component {
         });
         this.handleWin();
 
+    }
+
+    handleClickPlayWithPeople(row, column, force = false) {
+        var me = this;
+        let isMyTurn = false;
+        if (this.state.symbolPlay === "X" && this.state.isXturn) isMyTurn = true;
+        if (this.state.symbolPlay === "O" && !this.state.isXturn) isMyTurn = true;
+        // Get turn
+        if (!force) {
+            if (this.state.arrayPlay[row][column] !== 0 || this.state.isWin || !isMyTurn) {
+                return;
+            }
+        }
+        let arrClone = this.state.arrayPlay;
+        let chooseClone = this.state.arrayChoose;
+        let move = {};
+        move.turn = Math.floor((chooseClone.length / 2) + 1);
+        move.position = String.fromCharCode(65 + column) + row;
+        arrClone[row][column] = -1;
+        let symbol = "O";
+        if((!force && this.state.symbolPlay === "X") || (force && this.state.symbolPlay === "O")){
+            arrClone[row][column] = 1;
+            symbol = "X";
+        }
+        move.person = symbol;
+        if (this.state.isDecrease) {
+            chooseClone.unshift(move);
+        }
+        else chooseClone.push(move);
+        let turnNext = !this.state.isXturn;
+        this.setState({
+            arrayPlay: arrClone,
+            isXturn: turnNext,
+            arrayChoose: chooseClone
+        });
+        if (!force) {
+            // Emit to patern
+            let socket = io.connect(this.state.endPoint);
+            socket.emit("sendClick", {
+                to: me.patternId,
+                position: {
+                    row: row,
+                    column: column
+                }
+            });
+        }
+        if (this.handleWin()) return;
     }
 
     getMachinePlay(row, column, increase) {
@@ -461,19 +520,26 @@ class CaroComponent extends React.Component {
         return obj;
     }
 
-    handleChange(e){
+    handleChange(e) {
         this.setState({
             [e.target.name]: e.target.value
         })
     }
 
-    sendMessage(){
+    sendMessage() {
         let socket = io.connect(this.state.endPoint);
 
         // Emit send message
-        socket.emit("sendMessage",{to: this.patternId, message: this.state.message});
-        $(".chatcontent").append("<p class='message-chat'><span class='c-red'>" + localStorage.getItem("username") + "</span>: " + this.state.message + "</p>");
-        $(".chatcontent").scrollTop(9999);
+        socket.emit("sendMessage", { to: this.patternId, message: this.state.message });
+        $(".chat-message").append("<p class='message-chat'><span class='c-red'>" + localStorage.getItem("username") + "</span>: " + this.state.message + "</p>");
+        $(".chat-message").scrollTop(9999);
+
+        this.setState({
+            message: ""
+        });
+
+        // Clear Input
+        document.querySelector("[name='message']").value = "";
     }
 }
 function mapStateToProps(state) {
