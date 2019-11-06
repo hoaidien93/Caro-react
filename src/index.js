@@ -5,11 +5,6 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {Provider} from 'react-redux';
 import store from './Store/index';
-store.subscribe(() => {
-    let objState = store.getState();
-    if(objState.person === "X") alert("X Win");
-    if(objState.person === "O") alert("O Win");
-});
 ReactDOM.render(
     <Provider store={store}>
     <App />

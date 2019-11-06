@@ -41,6 +41,9 @@ class CaroComponent extends React.Component {
         this.socket = {};
     }
 
+    componentDidMount() {
+
+    }
     handleWin() {
         let arrayCalc = this.state.arrayPlay;
         for (let i = 0; i < this.state.row; i++) {
@@ -292,7 +295,7 @@ class CaroComponent extends React.Component {
                     </div>
                     <div className={this.state.isShowChat ? "chatbox" : "chatbox offchat"}>
                         <div className="chatcontent">
-                            <div className="chat-label" onClick={(e)=>{this.toggleChat()}}>Chatting</div>
+                            <div className="chat-label" onClick={(e) => { this.toggleChat() }}>Chatting</div>
                             <div className="chat-message"></div>
                         </div>
                         <div className="chat-bottom">
@@ -306,7 +309,7 @@ class CaroComponent extends React.Component {
 
     }
 
-    toggleChat(){
+    toggleChat() {
         let toggle = !this.state.isShowChat;
         this.setState({
             isShowChat: toggle
@@ -444,7 +447,7 @@ class CaroComponent extends React.Component {
         move.position = String.fromCharCode(65 + column) + row;
         arrClone[row][column] = -1;
         let symbol = "O";
-        if((!force && this.state.symbolPlay === "X") || (force && this.state.symbolPlay === "O")){
+        if ((!force && this.state.symbolPlay === "X") || (force && this.state.symbolPlay === "O")) {
             arrClone[row][column] = 1;
             symbol = "X";
         }

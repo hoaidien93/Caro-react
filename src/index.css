@@ -13,19 +13,23 @@ code {
 }
 
 .table-caro button{
-  width: 30px;
-  height: 30px;
-  text-decoration: none;
-  margin: 1px;
-  border: none;
-  background-color: #6f9e81;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 20px;
+  align-items: center;
+    justify-content: center;
+    margin: 0px;
+    padding: 0px;
+    width: 30px;
+    height: 30px;
+    text-decoration: none;
+    margin: 1px;
+    border: none;
+    background-color: #6f9e81;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 20px;
 }
 .wrapper{
   padding-top:10px;
-  margin: auto;
+  margin: 0 auto;
 }
 .row{
   display: flex;
@@ -36,9 +40,11 @@ code {
 }
 .c-red{
   color:red;
+  padding:0px;
 }
 .c-blue{
   color:blue;
+  padding: 0px;
 }
 .container{
   display: flex;
@@ -235,15 +241,9 @@ input#send_message{
   font-size: 13px;
   text-align: left;
   margin-bottom: 6px;
+  padding-left:10px;
 }
-.c-blue{
-  color: blue;
-  padding-left: 10px;
-}
-.c-red{
-  color:red;
-  padding-left: 10px;
-}
+
 
 .chat-label{
   width: 100%;
